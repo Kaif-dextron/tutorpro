@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a365d">
+    <meta name="apple-mobile-web-app-title" content="TutorPro">
+    <meta name="author" content="Mr Kaif">
+    <meta name="copyright" content="Copyright © 2026 Mr Kaif. All rights reserved.">
+    <title>TutorPro v2.0 | © Mr Kaif</title>
+    <style>
+        :root {
+            --primary: #1a365d;
+            --primary-light: #2b6cb0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #8b5cf6;
+            --orange: #f97316;
+            --gray: #6b7280;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --radius: 16px;
+            --shadow: 0 2px 8px rgba(0,0,0,0.06);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.10);
+            --safe-bottom: env(safe-area-inset-bottom, 16px);
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #e2e8f0;
+            color: var(--text);
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            min-height: 100vh;
+            min-height: 100dvh;
+            background: var(--bg);
+            position: relative;
+            padding-bottom: 90px;
+        }
+
+        .app-header {
+            background: var(--primary);
+            color: white;
+            padding: 14px 18px;
+            padding-top: max(14px, env(safe-area-inset-top));
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .app-header h1 { font-size: 19px; font-weight: 700; letter-spacing: -0.3px; }
+        .header-actions { display:flex; gap:8px; }
+        .icon-btn {
+            background: rgba(255,255,255,0.12);
+            border: none; color: white; width: 34px; height: 34px;
+            border-radius: 50%; font-size: 16px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; position: relative;
+        }
+        .icon-btn:active { background: rgba(255,255,255,0.25); transform: scale(0.92); }
+
+        .student-switcher {
+            background: white; margin: 10px 14px; border-radius: var(--radius);
+            padding: 12px 14px; box-shadow: var(--shadow);
+            display: flex; align-items: center; gap: 10px; cursor: pointer;
+            transition: all 0.2s; border: 2px solid transparent;
+        }
+        .student-switcher:active { transform: scale(0.98); }
+        .student-avatar {
+            width: 42px; height: 42px; border-radius: 50%;
+            background: var(--primary); color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 17px; flex-shrink: 0;
+        }
+        .student-info { flex:1; min-width:0; }
+        .student-name-display { font-weight: 700; font-size: 14px; }
+        .student-subtitle { font-size: 11px; color: var(--text-light); }
+        .dropdown-arrow { color: var(--text-light); font-size: 12px; }
+
+        .summary-row {
+            display: grid; grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px; margin: 0 14px 10px;
+        }
+        .summary-card {
+            background: white; border-radius: 12px; padding: 12px 10px;
+            text-align: center; box-shadow: var(--shadow);
+        }
+        .summary-card:active { transform: scale(0.96); }
+        .summary-card .s-value { font-size: 22px; font-weight: 800; color: var(--primary); }
+        .summary-card .s-label { font-size: 10px; color: var(--text-light); font-weight: 600; text-transform: uppercase; margin-top: 2px; }
+        .summary-card.pending-card { background: #fef3c7; }
+        .summary-card.pending-card .s-value { color: #92400e; font-size: 15px; }
+
+        .status-card {
+            margin: 0 14px 10px; background: white;
+            border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow);
+        }
+        .today-status { display:flex; align-items:center; gap:12px; }
+        .status-indicator {
+            width: 50px; height: 50px; border-radius: 50%;
+            display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0;
+            transition: all 0.3s;
+        }
+        .status-indicator.working { background:#d1fae5; animation: pulse 2s infinite; }
+        .status-indicator.leave { background:#fee2e2; }
+        .status-indicator.pending { background:#fef3c7; }
+        @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.05);} }
+        .status-text h3 { font-size:15px; font-weight:700; }
+        .status-text p { font-size:11px; color:var(--text-light); margin-top:1px; }
+        .session-timer { font-size:20px; font-weight:700; color:var(--success); margin-top:3px; }
+
+        .quick-actions {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 8px; margin: 0 14px 10px;
+        }
+        .action-btn {
+            background: white; border: none; padding: 12px;
+            border-radius: 12px; font-weight: 600; font-size: 12px;
+            cursor: pointer; box-shadow: var(--shadow);
+            display: flex; align-items: center; gap: 6px;
+            transition: all 0.2s; color: var(--text);
+        }
+        .action-btn:active { transform: scale(0.96); box-shadow: var(--shadow-lg); }
+        .action-btn .btn-icon { font-size: 20px; }
+        .action-btn.check-in { background:#d1fae5; color:#065f46; }
+        .action-btn.check-out { background:#fee2e2; color:#991b1b; }
+        .action-btn.manual { background:#fef3c7; color:#92400e; }
+        .action-btn.receipt { background:#dbeafe; color:#1e40af; }
+        .action-btn.payments { background:#f3e8ff; color:#6b21a8; }
+
+        .mini-calendar {
+            margin: 0 14px 10px; background: white;
+            border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow);
+        }
+        .calendar-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+        .month-title { font-weight:700; font-size:15px; }
+        .month-nav { display:flex; gap:4px; }
+        .month-nav button {
+            width:32px; height:32px; border-radius:50%;
+            border:1px solid var(--border); background:white;
+            cursor:pointer; font-size:13px; display:flex;
+            align-items:center; justify-content:center; transition:all 0.2s;
+        }
+        .month-nav button:active { background:var(--bg); }
+        .weekdays {
+            display:grid; grid-template-columns:repeat(7,1fr);
+            text-align:center; font-size:10px; font-weight:600;
+            color:var(--text-light); margin-bottom:4px;
+        }
+        .days-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; text-align:center; }
+        .day-cell {
+            aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+            border-radius:50%; font-size:12px; font-weight:500; cursor:pointer; 
+            transition:all 0.15s; position:relative;
+        }
+        .day-cell:active { transform:scale(0.85); }
+        .day-cell.today { border:2px solid var(--purple); font-weight:700; }
+        .day-cell.working { background:#d1fae5; color:#065f46; font-weight:600; }
+        .day-cell.leave { background:#fee2e2; color:#991b1b; }
+        .day-cell.partial { background:#fef3c7; color:#92400e; }
+        .day-cell.canceled { background:#ffedd5; color:#9a3412; }
+        .day-cell.holiday { background:#dbeafe; color:#1e40af; }
+        .day-cell.future { color:#cbd5e1; }
+        .day-cell.other-student { opacity:0.3; }
+        .legend { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; font-size:9px; }
+        .legend-item { display:flex; align-items:center; gap:3px; }
+        .legend-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+        .app-footer {
+            text-align:center; padding:12px; padding-bottom:100px;
+            font-size:9px; color:var(--text-light); border-top:1px solid var(--border);
+            margin: 10px 14px 0;
+        }
+        .app-footer .copyright { font-weight:600; color:var(--text); }
+
+        .bottom-nav {
+            position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+            width:100%; max-width:480px; background:white;
+            border-top:1px solid var(--border); display:flex;
+            padding:6px 6px; padding-bottom:max(6px, var(--safe-bottom));
+            z-index:100; box-shadow:0 -2px 8px rgba(0,0,0,0.04);
+        }
+        .nav-item {
+            flex:1; display:flex; flex-direction:column; align-items:center;
+            gap:2px; padding:5px; border:none; background:transparent;
+            cursor:pointer; color:var(--text-light); font-size:9px;
+            font-weight:500; transition:all 0.2s; border-radius:8px;
+            position:relative;
+        }
+        .nav-item.active { color:var(--primary); background:#eff6ff; }
+        .nav-item .nav-icon { font-size:20px; }
+        .nav-item .nav-badge {
+            position:absolute; top:2px; right:8px;
+            background:var(--danger); color:white; font-size:9px;
+            min-width:16px; height:16px; border-radius:8px;
+            display:flex; align-items:center; justify-content:center;
+            font-weight:700;
+        }
+
+        .modal-overlay {
+            display:none; position:fixed; inset:0;
+            background:rgba(0,0,0,0.55); z-index:200;
+            justify-content:center; align-items:flex-end;
+            backdrop-filter:blur(3px); animation: fadeIn 0.2s;
+        }
+        @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+        .modal-overlay.active { display:flex; }
+        .modal-sheet {
+            background:white; width:100%; max-width:480px;
+            max-height:88vh; border-radius:20px 20px 0 0;
+            overflow-y:auto; animation:slideUp 0.3s cubic-bezier(0.16,1,0.3,1);
+            padding:18px; padding-bottom:max(18px, var(--safe-bottom));
+        }
+        @keyframes slideUp { from{transform:translateY(100%);} to{transform:translateY(0);} }
+        .modal-handle { width:36px; height:4px; background:#d1d5db; border-radius:2px; margin:0 auto 14px; }
+        .modal-title { font-size:17px; font-weight:700; margin-bottom:14px; text-align:center; }
+
+        .form-group { margin-bottom:12px; }
+        .form-label { font-size:11px; font-weight:600; color:var(--text-light); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; display:block; }
+        .form-input {
+            width:100%; padding:11px 13px; border:2px solid var(--border);
+            border-radius:10px; font-size:14px; font-weight:500;
+            background:#f8fafc; transition:all 0.2s; font-family:inherit; color:var(--text);
+        }
+        .form-input:focus { outline:none; border-color:var(--primary-light); background:white; box-shadow:0 0 0 3px rgba(43,108,176,0.1); }
+        .form-hint { font-size:10px; color:var(--text-light); margin-top:3px; }
+
+        .btn {
+            width:100%; padding:13px; border:none; border-radius:12px;
+            font-weight:700; font-size:14px; cursor:pointer;
+            transition:all 0.2s; letter-spacing:0.2px;
+        }
+        .btn:active { transform:scale(0.97); }
+        .btn-primary { background:var(--primary); color:white; }
+        .btn-success { background:var(--success); color:white; }
+        .btn-danger { background:var(--danger); color:white; }
+        .btn-warning { background:var(--warning); color:#1e293b; }
+        .btn-outline { background:white; border:2px solid var(--border); color:var(--text); }
+        .btn-sm { padding:8px 14px; font-size:12px; width:auto; border-radius:8px; }
+        .btn-xs { padding:5px 10px; font-size:10px; width:auto; border-radius:6px; }
+
+        .upload-area {
+            border:2px dashed var(--border); border-radius:12px;
+            padding:20px; text-align:center; cursor:pointer;
+            transition:all 0.2s; background:#fafcfd;
+        }
+        .upload-area:active { border-color:var(--primary-light); background:#f0f6ff; }
+        .upload-preview { width:100%; max-height:120px; object-fit:contain; border-radius:8px; margin-top:8px; }
+        .upload-preview.signature { max-height:60px; }
+
+        .student-card {
+            background:white; border-radius:12px; padding:12px 14px; margin-bottom:6px;
+            box-shadow:var(--shadow); display:flex; align-items:center; gap:10px;
+            cursor:pointer; transition:all 0.2s; border:2px solid transparent;
+        }
+        .student-card:active { transform:scale(0.98); }
+        .student-card.active { border-color:var(--primary); background:#eff6ff; }
+        .student-card-actions { display:flex; gap:4px; flex-shrink:0; }
+        .student-card-actions button {
+            width:30px; height:30px; border-radius:50%; border:none;
+            cursor:pointer; font-size:13px; transition:all 0.2s;
+            display:flex; align-items:center; justify-content:center;
+        }
+        .btn-edit { background:#dbeafe; color:#1e40af; }
+        .btn-delete { background:#fee2e2; color:#991b1b; }
+
+        .receipt-item {
+            background:white; border-radius:12px; padding:12px 14px; margin-bottom:8px;
+            box-shadow:var(--shadow); cursor:pointer; transition:all 0.2s;
+            display:flex; align-items:center; gap:10px;
+        }
+        .receipt-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+        .receipt-dot.paid { background:var(--success); }
+        .receipt-dot.unpaid { background:var(--danger); }
+        .receipt-info { flex:1; min-width:0; }
+        .receipt-info .r-id { font-weight:700; font-size:13px; }
+        .receipt-info .r-detail { font-size:11px; color:var(--text-light); }
+        .receipt-amount { font-weight:700; font-size:14px; text-align:right; white-space:nowrap; }
+
+        .filter-bar { display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
+        .filter-chip {
+            padding:6px 12px; border-radius:20px; font-size:11px;
+            font-weight:600; border:1px solid var(--border);
+            background:white; cursor:pointer; transition:all 0.2s;
+        }
+        .filter-chip.active { background:var(--primary); color:white; border-color:var(--primary); }
+
+        .tracker-student-card {
+            background:white; border-radius:12px; padding:14px; margin-bottom:10px;
+            box-shadow:var(--shadow);
+        }
+        .tracker-item {
+            display:flex; align-items:center; gap:8px; padding:8px 0;
+            border-bottom:1px solid var(--border); font-size:12px;
+        }
+        .tracker-item:last-child { border-bottom:none; }
+
+        .rate-override-active { border-color:var(--warning) !important; background:#fffdf5 !important; }
+        
+        .storage-bar {
+            height:4px; background:#e2e8f0; border-radius:2px; margin-top:4px; overflow:hidden;
+        }
+        .storage-bar-fill { height:100%; background:var(--success); border-radius:2px; transition:width 0.5s; }
+        .storage-bar-fill.warning { background:var(--warning); }
+        .storage-bar-fill.danger { background:var(--danger); }
+
+        .toast {
+            position:fixed; bottom:100px; left:50%; transform:translateX(-50%);
+            background:#1e293b; color:white; padding:11px 20px;
+            border-radius:30px; font-size:12px; font-weight:600;
+            z-index:300; opacity:0; pointer-events:none;
+            transition:opacity 0.3s; box-shadow:var(--shadow-lg); white-space:nowrap;
+        }
+        .toast.show { opacity:1; }
+        .toast.undo { cursor:pointer; pointer-events:all; }
+
+        .empty-state {
+            text-align:center; padding:40px 20px; color:var(--text-light);
+        }
+        .empty-state .empty-icon { font-size:48px; margin-bottom:12px; }
+
+        @media print {
+            body { background:white; }
+            .app-header,.bottom-nav,.quick-actions,.status-card,
+            .student-switcher,.mini-calendar,.toast,.modal-overlay,
+            .app-footer,.summary-row,.filter-bar,.no-print { display:none !important; }
+            .app-container { max-width:100%; padding:0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+    <header class="app-header">
+        <h1>📚 TutorPro</h1>
+        <div class="header-actions">
+            <button class="icon-btn" onclick="showTutorProfile()">👤</button>
+            <button class="icon-btn" onclick="showSettings()">⚙️</button>
+        </div>
+    </header>
+
+    <div class="student-switcher" onclick="showStudentSwitcher()">
+        <div class="student-avatar" id="currentAvatar">R</div>
+        <div class="student-info">
+            <div class="student-name-display" id="currentStudentName">Loading...</div>
+            <div class="student-subtitle" id="currentStudentDetails">Please wait</div>
+        </div>
+        <span class="dropdown-arrow">▼</span>
+    </div>
+
+    <div class="summary-row no-print" id="summaryRow">
+        <div class="summary-card"><div class="s-value" id="sumWorking">0</div><div class="s-label">Working</div></div>
+        <div class="summary-card"><div class="s-value" id="sumLeaves">0</div><div class="s-label">Leaves</div></div>
+        <div class="summary-card"><div class="s-value" id="sumEarning">₹0</div><div class="s-label">Earnings</div></div>
+    </div>
+
+    <div class="summary-row no-print" id="pendingAlert" style="display:none;">
+        <div class="summary-card pending-card" style="grid-column:1/-1;" onclick="showPaymentTracker()">
+            <div class="s-value" id="pendingCount">⚠️ 0 Pending</div>
+            <div class="s-label">Tap to view Payment Tracker</div>
+        </div>
+    </div>
+
+    <div class="status-card" id="statusCard">
+        <div class="today-status">
+            <div class="status-indicator pending" id="statusIndicator">⏳</div>
+            <div class="status-text">
+                <h3 id="statusTitle">No Session Yet</h3>
+                <p id="statusSubtitle">Today's status</p>
+                <div class="session-timer" id="sessionTimer" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="quick-actions no-print">
+        <button class="action-btn check-in" onclick="manualCheckIn()"><span class="btn-icon">📍</span> Check In</button>
+        <button class="action-btn check-out" onclick="manualCheckOut()"><span class="btn-icon">🚪</span> Check Out</button>
+        <button class="action-btn manual" onclick="showDayOverride()"><span class="btn-icon">✏️</span> Override</button>
+        <button class="action-btn receipt" onclick="showReceiptGenerator()"><span class="btn-icon">🧾</span> Receipt</button>
+        <button class="action-btn payments" onclick="showPaymentTracker()" style="grid-column:1/-1;"><span class="btn-icon">💳</span> Payment Tracker</button>
+    </div>
+
+    <div class="mini-calendar">
+        <div class="calendar-header">
+            <span class="month-title" id="monthTitle">Loading...</span>
+            <div class="month-nav">
+                <button onclick="changeMonth(-1)">◀</button>
+                <button onclick="goToToday()">Today</button>
+                <button onclick="changeMonth(1)">▶</button>
+            </div>
+        </div>
+        <div class="weekdays"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+        <div class="days-grid" id="daysGrid"></div>
+        <div class="legend">
+            <span class="legend-item"><span class="legend-dot" style="background:#d1fae5;"></span> Working</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#fee2e2;"></span> Leave</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#fef3c7;"></span> Partial</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#dbeafe;"></span> Holiday</span>
+        </div>
+    </div>
+
+    <div class="app-footer no-print">
+        <div class="copyright">© 2026 TutorPro v2.0 | Mr Kaif</div>
+        <div style="font-size:8px;">📧 kaifalam522@gmail.com | 📱 +91 9142840785</div>
+    </div>
+
+    <nav class="bottom-nav no-print">
+        <button class="nav-item active" onclick="switchTab('home')"><span class="nav-icon">🏠</span>Home</button>
+        <button class="nav-item" onclick="switchTab('calendar')"><span class="nav-icon">📅</span>Calendar</button>
+        <button class="nav-item" onclick="switchTab('receipts')"><span class="nav-icon">🧾</span>Receipts</button>
+        <button class="nav-item" id="payNav" onclick="switchTab('payments')"><span class="nav-icon">💳</span>Payments</button>
+        <button class="nav-item" onclick="switchTab('students')"><span class="nav-icon">👥</span>Students</button>
+    </nav>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="modalContainer"></div>
+<input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)">
+
+<script>
+const APP = {
+    tutorProfile: { name: 'Mr Kaif', businessName: 'Smart Education Services', email: 'kaifalam522@gmail.com', phone: '+91 9142840785', upiId: '9142840785@airtel', logo: null, signature: null },
+    students: [], currentStudentId: null, currentMonth: new Date().getMonth(), currentYear: new Date().getFullYear(),
+    settings: { minSessionTime: 15, geofenceRadius: 150, defaultHourlyRate: 200, defaultSessionMins: 90 },
+    activeSession: null, sessionHistory: {}, receipts: [], paymentFilter: 'all', receiptRateOverride: null, undoTimeout: null
+};
+
+function loadData() {
+    try {
+        const d = JSON.parse(localStorage.getItem('tutorpro_v5_data'));
+        if (d) {
+            if (d.tutorProfile) APP.tutorProfile = { ...APP.tutorProfile, ...d.tutorProfile };
+            if (d.students) APP.students = d.students;
+            if (d.currentStudentId) APP.currentStudentId = d.currentStudentId;
+            if (d.settings) APP.settings = { ...APP.settings, ...d.settings };
+            if (d.sessionHistory) APP.sessionHistory = d.sessionHistory;
+            if (d.receipts) APP.receipts = d.receipts;
+        }
+    } catch(e) { localStorage.removeItem('tutorpro_v5_data'); }
+    if (!APP.students.length) APP.students.push({ id: 's1', name: 'Rahul Sharma', class: '10th Standard', subjects: 'Mathematics, Science', sessionMins: 90, hourlyRate: 200, parentName: '', parentPhone: '', parentEmail: '', location: null });
+    if (!APP.currentStudentId || !APP.students.find(s => s.id === APP.currentStudentId)) APP.currentStudentId = APP.students[0]?.id || null;
+    if (!APP.tutorProfile.logo) APP.tutorProfile.logo = generateDefaultLogo();
+}
+
+function saveData() {
+    try {
+        localStorage.setItem('tutorpro_v5_data', JSON.stringify({ tutorProfile: APP.tutorProfile, students: APP.students, currentStudentId: APP.currentStudentId, settings: APP.settings, sessionHistory: APP.sessionHistory, receipts: APP.receipts }));
+    } catch(e) {}
+}
+
+function generateDefaultLogo() {
+    const c = document.createElement('canvas'); c.width = 200; c.height = 80;
+    const ctx = c.getContext('2d'); ctx.fillStyle = '#1a365d'; ctx.beginPath(); ctx.roundRect(10, 10, 180, 60, 12); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('📚 TutorPro', 100, 48);
+    return c.toDataURL('image/png');
+}
+
+function getStudent(id) { return APP.students.find(s => s.id === id) || null; }
+function getCurrentStudent() { return getStudent(APP.currentStudentId); }
+function getTodayKey() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+
+function getDayStatus(dateKey) {
+    const e = APP.sessionHistory[dateKey];
+    if (!e) return 'future';
+    if (e.studentId !== APP.currentStudentId) return 'other-student';
+    return e.status || 'pending';
+}
+
+function getTotalMinutes(dateKey) {
+    const e = APP.sessionHistory[dateKey];
+    if (!e || e.studentId !== APP.currentStudentId || !e.entries) return 0;
+    return e.entries.reduce((s, en) => s + (en.out ? (new Date(en.out) - new Date(en.in)) / 60000 : 0), 0);
+}
+
+function getCalcRate() { const s = getCurrentStudent(); return s ? s.hourlyRate * (s.sessionMins / 60) : APP.settings.defaultHourlyRate * (APP.settings.defaultSessionMins / 60); }
+
+function showToast(msg, undo = false, cb = null) {
+    const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast show' + (undo ? ' undo' : '');
+    t.onclick = undo ? cb : null;
+    if (APP.undoTimeout) clearTimeout(APP.undoTimeout);
+    APP.undoTimeout = setTimeout(() => { t.classList.remove('show'); t.onclick = null; }, undo ? 5000 : 2500);
+}
+
+function manualCheckIn() {
+    const s = getCurrentStudent(); if (!s) return showToast('Add a student first');
+    if (APP.activeSession && APP.activeSession.studentId !== APP.currentStudentId) {
+        if (APP.activeSession.entryKey && APP.sessionHistory[APP.activeSession.entryKey]) {
+            const le = APP.sessionHistory[APP.activeSession.entryKey].entries.slice(-1)[0];
+            if (le && !le.out) { le.out = new Date().toISOString(); updateDayStatus(APP.activeSession.entryKey); }
+        }
+    }
+    const tk = getTodayKey();
+    if (!APP.sessionHistory[tk]) APP.sessionHistory[tk] = { studentId: APP.currentStudentId, entries: [], status: 'pending', note: '' };
+    APP.sessionHistory[tk].entries.push({ in: new Date().toISOString(), out: null });
+    APP.activeSession = { studentId: APP.currentStudentId, startTime: new Date().toISOString(), entryKey: tk };
+    updateDayStatus(tk); saveData(); refreshUI();
+    showToast('✅ Checked in');
+}
+
+function manualCheckOut() {
+    if (!APP.activeSession) return showToast('No active session');
+    const ek = APP.activeSession.entryKey;
+    if (!ek || !APP.sessionHistory[ek]) return;
+    const le = APP.sessionHistory[ek].entries.slice(-1)[0];
+    if (le.out) return showToast('Already checked out');
+    le.out = new Date().toISOString(); updateDayStatus(ek);
+    const mins = Math.round((new Date(le.out) - new Date(le.in)) / 60000);
+    APP.activeSession = null; saveData(); refreshUI();
+    showToast(`🚪 ${mins} minutes`);
+}
+
+function updateDayStatus(dk) {
+    const e = APP.sessionHistory[dk]; if (!e) return;
+    const m = getTotalMinutes(dk);
+    e.status = m >= APP.settings.minSessionTime ? 'working' : (m > 0 ? 'partial' : 'pending');
+}
+
+function renderCalendar() {
+    const grid = document.getElementById('daysGrid');
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('monthTitle').textContent = `${months[APP.currentMonth]} ${APP.currentYear}`;
+    const fd = new Date(APP.currentYear, APP.currentMonth, 1).getDay();
+    const dim = new Date(APP.currentYear, APP.currentMonth + 1, 0).getDate();
+    const today = new Date();
+    const todayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    let h = '';
+    for (let i = 0; i < fd; i++) h += '<div class="day-cell"></div>';
+    for (let d = 1; d <= dim; d++) {
+        const dk = `${APP.currentYear}-${String(APP.currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const st = getDayStatus(dk); const isToday = dk === todayKey;
+        let cls = 'day-cell';
+        if (isToday) cls += ' today';
+        if (st === 'working') cls += ' working'; else if (st === 'leave') cls += ' leave';
+        else if (st === 'partial') cls += ' partial'; else if (st === 'canceled') cls += ' canceled';
+        else if (st === 'holiday') cls += ' holiday'; else if (st === 'other-student') cls += ' other-student';
+        else if (st === 'future' && dk > todayKey) cls += ' future'; else if (dk <= todayKey) cls += ' leave';
+        h += `<div class="${cls}" onclick="showDayDetail('${dk}')">${d}</div>`;
+    }
+    grid.innerHTML = h;
+    updateSummaryCards(); updatePendingAlert();
+}
+
+function changeMonth(d) { APP.currentMonth += d; if (APP.currentMonth > 11) { APP.currentMonth = 0; APP.currentYear++; } if (APP.currentMonth < 0) { APP.currentMonth = 11; APP.currentYear--; } renderCalendar(); }
+function goToToday() { const t = new Date(); APP.currentMonth = t.getMonth(); APP.currentYear = t.getFullYear(); renderCalendar(); }
+
+function updateSummaryCards() {
+    const now = new Date(); let wd = 0, ld = 0;
+    const rate = getCalcRate();
+    for (let d = 1; d <= new Date(now.getFullYear(), now.getMonth()+1, 0).getDate(); d++) {
+        const dk = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const st = getDayStatus(dk);
+        if (st === 'working' || st === 'partial') wd++;
+        else if (st === 'leave' || st === 'canceled' || (st === 'pending' && d <= now.getDate())) ld++;
+    }
+    document.getElementById('sumWorking').textContent = wd;
+    document.getElementById('sumLeaves').textContent = ld;
+    document.getElementById('sumEarning').textContent = '₹' + (wd * rate).toLocaleString('en-IN');
+}
+
+function updatePendingAlert() {
+    const unpaid = APP.receipts.filter(r => r.paymentStatus === 'unpaid');
+    document.getElementById('pendingAlert').style.display = unpaid.length ? 'block' : 'none';
+    if (unpaid.length) document.getElementById('pendingCount').textContent = `⚠️ ${unpaid.length} Pending`;
+}
+
+function showDayDetail(dk) {
+    const e = APP.sessionHistory[dk];
+    const belongs = e && e.studentId === APP.currentStudentId;
+    let c = belongs ? `<div class="session-detail-row"><span class="detail-label">Status</span><span class="detail-value">${e.status.toUpperCase()}</span></div>` : '<p>No data for current student</p>';
+    if (belongs) {
+        const tm = getTotalMinutes(dk);
+        c += `<div class="session-detail-row"><span class="detail-label">Time</span><span class="detail-value">${Math.floor(tm/60)}h ${Math.round(tm%60)}m</span></div>`;
+        e.entries.forEach((en, i) => c += `<div class="session-detail-row"><span class="detail-label">Entry ${i+1}</span><span class="detail-value">${new Date(en.in).toLocaleTimeString()} → ${en.out?new Date(en.out).toLocaleTimeString():'...'}</span></div>`);
+        if (e.note) c += `<div class="session-detail-row"><span class="detail-label">Note</span><span class="detail-value">${e.note}</span></div>`;
+    }
+    c += `<button class="btn btn-outline" style="margin-top:8px;" onclick="closeModal('dayModal');showDayOverride('${dk}')">✏️ Override</button>`;
+    showModal('dayModal', '📅 ' + dk, c);
+}
+
+function showDayOverride(dk) {
+    if (!dk) dk = getTodayKey();
+    const opts = [{l:'🟢 Working',v:'working'},{l:'🔴 Leave',v:'leave'},{l:'🟡 Partial',v:'partial'},{l:'🟠 Canceled',v:'canceled'},{l:'🔵 Holiday',v:'holiday'}];
+    let c = opts.map(o => `<button class="btn btn-outline" style="margin-bottom:4px;" onclick="overrideDay('${dk}','${o.v}')">${o.l}</button>`).join('');
+    c += `<div class="form-group"><label class="form-label">Note</label><input type="text" class="form-input" id="dayNoteInput"></div>`;
+    c += `<button class="btn btn-primary" onclick="saveDayOverride('${dk}')">💾 Save</button>`;
+    showModal('dayModal', 'Override: ' + dk, c);
+    setTimeout(() => { const ni = document.getElementById('dayNoteInput'); if (ni && APP.sessionHistory[dk]) ni.value = APP.sessionHistory[dk].note || ''; }, 150);
+}
+
+function overrideDay(dk, st) {
+    if (!APP.sessionHistory[dk]) APP.sessionHistory[dk] = { studentId: APP.currentStudentId, entries: [], status: st, note: '' };
+    else { APP.sessionHistory[dk].status = st; APP.sessionHistory[dk].studentId = APP.currentStudentId; }
+    saveData(); refreshUI(); showToast('✅ ' + st);
+}
+
+function saveDayOverride(dk) {
+    const note = document.getElementById('dayNoteInput')?.value || '';
+    if (!APP.sessionHistory[dk]) APP.sessionHistory[dk] = { studentId: APP.currentStudentId, entries: [], status: 'pending', note: '' };
+    APP.sessionHistory[dk].note = note; APP.sessionHistory[dk].studentId = APP.currentStudentId;
+    saveData(); closeAllModals(); refreshUI(); showToast('✅ Saved');
+}
+
+function showStudentSwitcher() {
+    let c = APP.students.map(s => `
+        <div class="student-card ${s.id===APP.currentStudentId?'active':''}">
+            <div class="student-avatar" style="width:38px;height:38px;font-size:15px;">${s.name.charAt(0)}</div>
+            <div class="student-info" onclick="switchStudent('${s.id}')"><div class="student-name-display">${s.name}</div><div class="student-subtitle">${s.class} • ${s.subjects}</div></div>
+            <div class="student-card-actions">
+                <button class="btn-edit" onclick="event.stopPropagation();editStudent('${s.id}')">✏️</button>
+                <button class="btn-delete" onclick="event.stopPropagation();confirmDelete('${s.id}')">🗑️</button>
+            </div>
+        </div>`).join('');
+    c += '<button class="btn btn-primary" style="margin-top:8px;" onclick="closeAllModals();addStudent()">+ Add Student</button>';
+    showModal('studentModal', '👥 Students', c);
+}
+
+function switchStudent(id) {
+    if (APP.activeSession?.studentId !== id && APP.activeSession) { manualCheckOut(); }
+    APP.currentStudentId = id; saveData(); refreshUI(); closeAllModals(); showToast('✅ Switched');
+}
+
+function editStudent(id) {
+    const s = getStudent(id); if (!s) return;
+    showModal('studentModal', '✏️ Edit Student', studentFormHTML(s));
+}
+
+function addStudent() { showModal('studentModal', '➕ Add Student', studentFormHTML(null)); }
+
+function studentFormHTML(s) {
+    return `
+        <input type="hidden" id="sEditId" value="${s?.id||''}">
+        <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="sName" value="${s?.name||''}"></div>
+        <div class="form-group"><label class="form-label">Class</label><input type="text" class="form-input" id="sClass" value="${s?.class||''}"></div>
+        <div class="form-group"><label class="form-label">Subjects</label><input type="text" class="form-input" id="sSubjects" value="${s?.subjects||''}"></div>
+        <div class="form-group"><label class="form-label">Session (mins)</label><input type="number" class="form-input" id="sSessionMins" value="${s?.sessionMins||APP.settings.defaultSessionMins}"></div>
+        <div class="form-group"><label class="form-label">Rate/hr (₹)</label><input type="number" class="form-input" id="sHourlyRate" value="${s?.hourlyRate||APP.settings.defaultHourlyRate}"></div>
+        <hr><p style="font-size:11px;font-weight:600;color:var(--text-light);">👨‍👩‍👦 Parent</p>
+        <div class="form-group"><label class="form-label">Parent Name</label><input type="text" class="form-input" id="sParentName" value="${s?.parentName||''}"></div>
+        <div class="form-group"><label class="form-label">Parent Phone</label><input type="tel" class="form-input" id="sParentPhone" value="${s?.parentPhone||''}"></div>
+        <div class="form-group"><label class="form-label">Parent Email</label><input type="email" class="form-input" id="sParentEmail" value="${s?.parentEmail||''}"></div>
+        <hr><div class="form-group"><label class="form-label">Location</label>
+            <button class="btn btn-outline btn-sm" onclick="pinLoc()">📍 Pin</button>
+            <input type="text" class="form-input" id="sLocation" value="${s?.location||''}" readonly style="margin-top:6px;"></div>
+        <button class="btn btn-success" onclick="saveStudent()">💾 Save</button>
+        <button class="btn btn-outline" style="margin-top:6px;" onclick="closeAllModals();showStudentSwitcher()">Cancel</button>`;
+}
+
+function saveStudent() {
+    const eid = document.getElementById('sEditId')?.value;
+    const data = { id: eid || 's'+Date.now(), name: document.getElementById('sName')?.value||'', class: document.getElementById('sClass')?.value||'', subjects: document.getElementById('sSubjects')?.value||'', sessionMins: parseInt(document.getElementById('sSessionMins')?.value)||90, hourlyRate: parseInt(document.getElementById('sHourlyRate')?.value)||200, parentName: document.getElementById('sParentName')?.value||'', parentPhone: document.getElementById('sParentPhone')?.value||'', parentEmail: document.getElementById('sParentEmail')?.value||'', location: document.getElementById('sLocation')?.value||null };
+    if (!data.name) return showToast('Name required');
+    if (eid) { const i = APP.students.findIndex(s=>s.id===eid); if(i>=0) APP.students[i]=data; }
+    else APP.students.push(data);
+    if (!APP.currentStudentId || APP.currentStudentId===eid) APP.currentStudentId = data.id;
+    saveData(); refreshUI(); closeAllModals(); showToast('✅ Saved');
+}
+
+function confirmDelete(id) {
+    const s = getStudent(id); if (!s || APP.students.length <= 1) return showToast('Cannot delete last student');
+    const rc = APP.receipts.filter(r=>r.studentId===id).length;
+    showModal('studentModal', '⚠️ Delete?', `<div style="text-align:center;"><h3>Delete "${s.name}"?</h3><p>${rc} receipts will be kept</p><div style="display:flex;gap:8px;"><button class="btn btn-outline" onclick="closeAllModals();showStudentSwitcher()">Cancel</button><button class="btn btn-danger" onclick="deleteStudent('${id}')">🗑️ Delete</button></div></div>`);
+}
+
+function deleteStudent(id) {
+    const s = getStudent(id); if (!s) return;
+    APP.students = APP.students.filter(st=>st.id!==id);
+    Object.keys(APP.sessionHistory).forEach(k => { if (APP.sessionHistory[k].studentId===id) delete APP.sessionHistory[k]; });
+    if (APP.currentStudentId===id) APP.currentStudentId = APP.students[0]?.id||null;
+    if (APP.activeSession?.studentId===id) APP.activeSession = null;
+    saveData(); refreshUI(); closeAllModals();
+    showToast(`🗑️ Deleted`, true, () => { APP.students.push(s); APP.currentStudentId=s.id; saveData(); refreshUI(); showToast('✅ Restored'); });
+}
+
+function pinLoc() {
+    if (navigator.geolocation) navigator.geolocation.getCurrentPosition(p => { const f=document.getElementById('sLocation'); if(f) f.value=`${p.coords.latitude.toFixed(6)}, ${p.coords.longitude.toFixed(6)}`; showToast('📍 Pinned'); }, () => showToast('Denied'));
+}
+
+function getReceiptStats(from, to, ro) {
+    const s = getCurrentStudent(); if (!s) return { workingDays:0, avgMins:0, leaveDays:0, estimatedTotal:0, perSessionRate:0 };
+    const f=new Date(from), t=new Date(to); let wd=0, tm=0, ld=0;
+    for (let d=new Date(f); d<=t; d.setDate(d.getDate()+1)) {
+        const dk=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        const st=getDayStatus(dk);
+        if (st==='working'||st==='partial'){wd++;tm+=getTotalMinutes(dk);}
+        else if(st==='leave'||st==='canceled'||(st==='pending'&&d<=new Date()))ld++;
+    }
+    const avg=wd>0?Math.round(tm/wd):s.sessionMins;
+    const er=ro!==null?ro:getCalcRate();
+    return {workingDays:wd,avgMins:avg,leaveDays:ld,estimatedTotal:wd*er,perSessionRate:er};
+}
+
+function showReceiptGenerator() {
+    if (!getCurrentStudent()) return showToast('Add a student');
+    const today=new Date();
+    APP.receiptRateOverride=null;
+    let c=`<div class="form-group"><label class="form-label">From</label><input type="date" class="form-input" id="rFromDate" value="${new Date(today.getFullYear(),today.getMonth(),1).toISOString().split('T')[0]}"></div>`;
+    c+=`<div class="form-group"><label class="form-label">To</label><input type="date" class="form-input" id="rToDate" value="${today.toISOString().split('T')[0]}"></div>`;
+    c+=`<div class="form-group"><label class="form-label">Rate/session (₹)</label><input type="number" class="form-input" id="rPerSessionRate" value="${getCalcRate()}" oninput="onRateOv()"><div class="form-hint" id="rateHint">Auto</div></div>`;
+    c+=`<div id="receiptSummary" style="background:#f8fafc;padding:12px;border-radius:10px;margin-bottom:10px;font-size:12px;"></div>`;
+    c+=`<button class="btn btn-success" onclick="genReceipt()">📄 Generate</button>`;
+    showModal('receiptModal','🧾 Receipt',c);
+    document.getElementById('rFromDate').addEventListener('input',updReceiptSum);
+    document.getElementById('rToDate').addEventListener('input',updReceiptSum);
+    updReceiptSum();
+}
+
+function onRateOv() {
+    const v=document.getElementById('rPerSessionRate')?.value, calc=getCalcRate();
+    APP.receiptRateOverride=(v===''||parseFloat(v)===calc)?null:(parseFloat(v)||0);
+    const el=document.getElementById('rPerSessionRate'), h=document.getElementById('rateHint');
+    if (APP.receiptRateOverride!==null){el?.classList.add('rate-override-active');if(h){h.textContent='✏️ Custom';h.style.color='#92400e';}}
+    else {el?.classList.remove('rate-override-active');if(h){h.textContent='Auto';h.style.color='#64748b';}}
+    updReceiptSum();
+}
+
+function updReceiptSum() {
+    const f=document.getElementById('rFromDate')?.value, t=document.getElementById('rToDate')?.value, s=document.getElementById('receiptSummary');
+    if(!f||!t||!s)return;
+    const st=getReceiptStats(f,t,APP.receiptRateOverride);
+    s.innerHTML=`📅 ${st.workingDays}d | ⏱️ ${st.avgMins}m | 🔴 ${st.leaveDays} leaves | 💰 ₹${st.estimatedTotal.toLocaleString('en-IN')}`;
+}
+
+function genReceipt() {
+    const s=getCurrentStudent(); if(!s)return;
+    const f=document.getElementById('rFromDate')?.value, t=document.getElementById('rToDate')?.value;
+    if(!f||!t)return showToast('Select dates');
+    const st=getReceiptStats(f,t,APP.receiptRateOverride);
+    const now=new Date();
+    APP._lastReceipt={id:`TUT-${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}-${Math.floor(100+Math.random()*900)}`,studentId:s.id,from:f,to:t,stats:st,perSessionRate:st.perSessionRate,date:now.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}),paymentStatus:'unpaid',paymentMethod:'',paymentDate:null,generatedAt:now.toISOString()};
+    APP.receipts.unshift(APP._lastReceipt); saveData(); showRecPreview(); APP.receiptRateOverride=null;
+}
+
+function showRecPreview() {
+    const r=APP._lastReceipt; if(!r)return;
+    const tp=APP.tutorProfile, s=getStudent(r.studentId);
+    const upi=`upi://pay?pa=${encodeURIComponent(tp.upiId)}&pn=${encodeURIComponent(tp.name)}&am=${r.stats.estimatedTotal.toFixed(2)}&cu=INR&tn=Tutoring`;
+    let c=`<div style="border:2px solid #1a365d;border-radius:10px;padding:18px;background:white;font-family:Arial;">
+        <div style="text-align:center;">${tp.logo?`<img src="${tp.logo}" style="max-height:50px;">`:'📚 TutorPro'}</div>
+        <div style="text-align:center;border-bottom:2px dashed #e2e8f0;padding:8px 0;margin:8px 0;"><b>${tp.businessName}</b><br>FEE RECEIPT<br><small>No: ${r.id}</small></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;">
+            <div><b>Student:</b> ${s?.name||'?'}<br>${s?.class||''}<br>${s?.subjects||''}<br>${r.from} → ${r.to}</div>
+            <div><b>Tutor:</b> ${tp.name}<br>📧 ${tp.email}<br>📱 ${tp.phone}<br>${r.date}</div></div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;margin:8px 0;"><tr style="background:#1a365d;color:white;"><th>Desc</th><th>Days</th><th>Rate</th><th>Amt</th></tr>
+        <tr><td>Sessions (${r.stats.avgMins}m)</td><td>${r.stats.workingDays}</td><td>₹${r.perSessionRate.toFixed(0)}</td><td>₹${r.stats.estimatedTotal.toLocaleString('en-IN')}</td></tr></table>
+        <div style="text-align:right;background:#f7fafc;padding:8px;border:2px solid #1a365d;border-radius:6px;font-weight:700;">Total: ₹${r.stats.estimatedTotal.toLocaleString('en-IN')}</div>
+        <div style="text-align:center;background:#f0fdf4;padding:8px;border-radius:6px;margin-top:6px;font-size:11px;"><b>💳 Pay:</b> ${tp.upiId}<br><a href="${upi}" style="display:inline-block;background:#10b981;color:white;padding:6px 14px;border-radius:20px;text-decoration:none;font-weight:700;margin-top:4px;">📱 Pay ₹${r.stats.estimatedTotal.toLocaleString('en-IN')}</a></div>
+        ${tp.signature?`<div style="text-align:right;margin-top:12px;"><img src="${tp.signature}" style="max-height:40px;"><br>${tp.name}</div>`:`<div style="text-align:right;margin-top:16px;border-top:1px solid #4a5568;padding-top:4px;width:140px;margin-left:auto;text-align:center;">${tp.name}</div>`}
+        <p style="font-size:8px;color:#94a3b8;text-align:center;margin-top:8px;">TutorPro v2.0 | © ${new Date().getFullYear()} ${tp.name}</p></div>`;
+    showModal('recPreview','🧾 Receipt',c+`<button class="btn btn-primary" style="margin-top:8px;" onclick="printRec()">🖨️ Print</button><button class="btn btn-success" style="margin-top:6px;" onclick="shareRec()">📤 Share</button>`);
+}
+
+function printRec() { const c=document.getElementById('recPreviewContent')?.innerHTML||''; const w=window.open('','','width=800,height=600'); w.document.write(`<html><head><title>Receipt</title><style>body{font-family:sans-serif;padding:15px;}@media print{body{padding:0;}}table{border-collapse:collapse;}th,td{border:1px solid #ddd;padding:5px;}th{background:#1a365d;color:white;}</style></head><body>${c}<script>window.print();<\/script></body></html>`); w.document.close(); }
+function shareRec() { const r=APP._lastReceipt; if(!r)return; const t=`Receipt\n${getStudent(r.studentId)?.name}\nTotal: ₹${r.stats.estimatedTotal.toLocaleString('en-IN')}\nPay: ${APP.tutorProfile.upiId}`; if(navigator.share)navigator.share({title:'Receipt',text:t}); else {navigator.clipboard.writeText(t);showToast('📋 Copied');} }
+
+function showRecHistory() {
+    const rs=APP.receipts;
+    let c=rs.length?rs.map(r=>`<div class="receipt-item" onclick="viewRec('${r.id}')"><div class="receipt-dot ${r.paymentStatus}"></div><div class="receipt-info"><div class="r-id">📄 ${r.id}</div><div class="r-detail">${getStudent(r.studentId)?.name||'?'} • ${r.from}→${r.to}</div></div><div class="receipt-amount">₹${r.stats.estimatedTotal.toLocaleString('en-IN')}</div></div>`).join(''):'<div class="empty-state"><div class="empty-icon">📭</div><p>No receipts</p></div>';
+    showModal('recHistory','🧾 History',c);
+}
+
+function viewRec(rid) { const r=APP.receipts.find(x=>x.id===rid); if(r){APP._lastReceipt=r;showRecPreview();} }
+
+function showPayTracker() { APP.paymentFilter='all'; renderPayTracker(); showModal('payTracker','💳 Payments',`<div class="filter-bar"><button class="filter-chip active" onclick="filtPay('all',this)">All</button><button class="filter-chip" onclick="filtPay('unpaid',this)">❌ Unpaid</button><button class="filter-chip" onclick="filtPay('paid',this)">✅ Paid</button></div><div id="payContent"></div>`); renderPayTracker(); }
+
+function filtPay(f,el) { APP.paymentFilter=f; document.querySelectorAll('#payTracker .filter-chip').forEach(c=>c.classList.remove('active')); el.classList.add('active'); renderPayTracker(); }
+
+function renderPayTracker() {
+    const ct=document.getElementById('payContent'); if(!ct)return;
+    let rs=APP.receipts;
+    if(APP.paymentFilter==='paid')rs=rs.filter(r=>r.paymentStatus==='paid');
+    else if(APP.paymentFilter==='unpaid')rs=rs.filter(r=>r.paymentStatus==='unpaid');
+    if(!rs.length){ct.innerHTML='<div class="empty-state"><div class="empty-icon">🎉</div><p>None</p></div>';return;}
+    const g={}; rs.forEach(r=>{if(!g[r.studentId])g[r.studentId]=[];g[r.studentId].push(r);});
+    let h='',tp=0;
+    Object.entries(g).forEach(([sid,recs])=>{
+        const s=getStudent(sid),p=recs.filter(r=>r.paymentStatus==='unpaid').reduce((a,r)=>a+r.stats.estimatedTotal,0);
+        tp+=p;
+        h+=`<div class="tracker-student-card"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><b>👤 ${s?.name||'?'}</b>${p>0?`<span style="color:var(--danger);">₹${p.toLocaleString('en-IN')}</span>`:'<span style="color:var(--success);">Paid ✅</span>'}</div>`;
+        recs.forEach(r=>h+=`<div class="tracker-item"><div class="receipt-dot ${r.paymentStatus}"></div><div style="flex:1;">📄 ${r.id}<br><small>${r.from}→${r.to}</small></div><div style="font-weight:700;">₹${r.stats.estimatedTotal.toLocaleString('en-IN')}<br><small>${r.paymentStatus==='paid'?'✅':'❌'}</small></div>${r.paymentStatus==='unpaid'?`<button class="btn btn-sm btn-success" style="margin-left:4px;" onclick="markP('${r.id}','upi')">💳</button><button class="btn btn-sm btn-warning" onclick="markP('${r.id}','cash')">💵</button>`:''}</div>`);
+        h+='</div>';
+    });
+    h+=`<div style="background:${tp>0?'#fef3c7':'#d1fae5'};padding:12px;border-radius:12px;text-align:center;margin-top:8px;font-weight:700;">${tp>0?`Pending: ₹${tp.toLocaleString('en-IN')}`:'🎉 All Paid!'}</div>`;
+    ct.innerHTML=h;
+}
+
+function markP(rid,m) { const r=APP.receipts.find(x=>x.id===rid); if(r){r.paymentStatus='paid';r.paymentMethod=m;r.paymentDate=new Date().toISOString();saveData();renderPayTracker();updatePendingAlert();showToast('✅ Paid');} }
+
+function showTutorProfile() {
+    const tp=APP.tutorProfile;
+    let c=`<div class="form-group"><label class="form-label">Logo</label><div class="upload-area" onclick="document.getElementById('tLogoInput').click()"><div id="tLogoPreview">${tp.logo?'':'📚 Tap'}</div><img id="tLogoImg" class="upload-preview" src="${tp.logo||''}" style="${tp.logo?'':'display:none;'}"></div><input type="file" id="tLogoInput" accept="image/*" style="display:none;" onchange="upFile(this,'tLogoImg','tLogoPreview','logo')"></div>`;
+    c+=`<div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="tName" value="${tp.name}"></div>`;
+    c+=`<div class="form-group"><label class="form-label">Business</label><input type="text" class="form-input" id="tBusiness" value="${tp.businessName}"></div>`;
+    c+=`<div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="tEmail" value="${tp.email}"></div>`;
+    c+=`<div class="form-group"><label class="form-label">Phone</label><input type="tel" class="form-input" id="tPhone" value="${tp.phone}"></div>`;
+    c+=`<div class="form-group"><label class="form-label">UPI ID</label><input type="text" class="form-input" id="tUpi" value="${tp.upiId}"></div>`;
+    c+=`<div class="form-group"><label class="form-label">Signature</label><div class="upload-area" onclick="document.getElementById('tSigInput').click()"><div id="tSigPreview">${tp.signature?'':'✍️ Tap'}</div><img id="tSigImg" class="upload-preview signature" src="${tp.signature||''}" style="${tp.signature?'':'display:none;'}"></div><input type="file" id="tSigInput" accept="image/*" style="display:none;" onchange="upFile(this,'tSigImg','tSigPreview','sig')"></div>`;
+    c+=`<button class="btn btn-success" onclick="saveTutor()">💾 Save</button>`;
+    showModal('tutorProfile','👤 Profile',c);
+}
+
+function saveTutor() {
+    APP.tutorProfile.name=document.getElementById('tName')?.value||'Mr Kaif';
+    APP.tutorProfile.businessName=document.getElementById('tBusiness')?.value||'';
+    APP.tutorProfile.email=document.getElementById('tEmail')?.value||'';
+    APP.tutorProfile.phone=document.getElementById('tPhone')?.value||'';
+    APP.tutorProfile.upiId=document.getElementById('tUpi')?.value||'';
+    if(!APP.tutorProfile.logo)APP.tutorProfile.logo=generateDefaultLogo();
+    saveData();closeAllModals();refreshUI();showToast('✅ Saved');
+}
+
+function upFile(inp,imgId,prevId,type) {
+    const f=inp.files[0]; if(!f)return;
+    if(f.size>(type==='logo'?500000:200000))return showToast('Too large');
+    const r=new FileReader();
+    r.onload=e=>{
+        const img=document.getElementById(imgId); if(img){img.src=e.target.result;img.style.display='block';}
+        const prev=document.getElementById(prevId); if(prev)prev.style.display='none';
+        if(type==='logo')APP.tutorProfile.logo=e.target.result;else APP.tutorProfile.signature=e.target.result;
+        saveData();
+    };
+    r.readAsDataURL(f);
+}
+
+function showSettings() {
+    let u=0; for(let k in localStorage)u+=localStorage[k]?.length*2||0;
+    const p=Math.round((u/(5*1024*1024))*100);
+    let c=`<div class="form-group"><label class="form-label">Min Session (mins)</label><input type="number" class="form-input" id="setMinTime" value="${APP.settings.minSessionTime}"></div>`;
+    c+=`<div class="form-group"><label class="form-label">Geofence (m)</label><input type="number" class="form-input" id="setRadius" value="${APP.settings.geofenceRadius}"></div>`;
+    c+=`<div class="form-group"><label class="form-label">Default Rate/hr</label><input type="number" class="form-input" id="setDefaultRate" value="${APP.settings.defaultHourlyRate}"></div>`;
+    c+=`<div style="font-size:10px;">Storage: ${(u/1024/1024).toFixed(1)}MB / 5MB (${p}%)</div><div class="storage-bar"><div class="storage-bar-fill ${p>80?'danger':p>60?'warning':''}" style="width:${p}%;"></div></div>`;
+    c+=`<button class="btn btn-success" style="margin-top:10px;" onclick="saveSets()">💾 Save</button>`;
+    c+=`<button class="btn btn-primary" style="margin-top:6px;" onclick="installApp()">📲 Install</button>`;
+    c+=`<button class="btn btn-danger" style="margin-top:6px;" onclick="exportData()">📤 Backup</button>`;
+    c+=`<button class="btn btn-outline" style="margin-top:6px;" onclick="importDataPrompt()">📥 Restore</button>`;
+    c+=`<div style="text-align:center;margin-top:10px;font-size:9px;color:#94a3b8;">v2.0 | © ${new Date().getFullYear()} Mr Kaif</div>`;
+    showModal('settings','⚙️ Settings',c);
+}
+
+function saveSets() {
+    APP.settings.minSessionTime=parseInt(document.getElementById('setMinTime')?.value)||15;
+    APP.settings.geofenceRadius=parseInt(document.getElementById('setRadius')?.value)||150;
+    APP.settings.defaultHourlyRate=parseInt(document.getElementById('setDefaultRate')?.value)||200;
+    saveData();closeAllModals();showToast('✅ Saved');
+}
+
+function exportData() {
+    const b=new Blob([JSON.stringify({tutorProfile:APP.tutorProfile,students:APP.students,currentStudentId:APP.currentStudentId,settings:APP.settings,sessionHistory:APP.sessionHistory,receipts:APP.receipts,_meta:{app:'TutorPro',v:'2.0',dev:'Mr Kaif'}},null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`tutorpro_backup_${new Date().toISOString().split('T')[0]}.json`;a.click();showToast('📤 Done');
+}
+
+function importDataPrompt(){document.getElementById('importFile').click();}
+function importData(e){
+    const f=e.target.files[0];if(!f)return;
+    const r=new FileReader();
+    r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.tutorProfile)APP.tutorProfile={...APP.tutorProfile,...d.tutorProfile};if(d.students)APP.students=d.students;if(d.currentStudentId)APP.currentStudentId=d.currentStudentId;if(d.settings)APP.settings={...APP.settings,...d.settings};if(d.sessionHistory)APP.sessionHistory=d.sessionHistory;if(d.receipts)APP.receipts=d.receipts;saveData();refreshUI();showToast('📥 Done');}catch{showToast('Invalid');}};
+    r.readAsText(f);e.target.value='';
+}
+
+function showModal(id,title,content) {
+    const ct=document.getElementById('modalContainer');
+    const ex=document.getElementById(id); if(ex)ex.remove();
+    const ov=document.createElement('div'); ov.className='modal-overlay active'; ov.id=id;
+    ov.onclick=function(e){if(e.target===ov)closeModal(id);};
+    ov.innerHTML=`<div class="modal-sheet"><div class="modal-handle"></div><div class="modal-title">${title}</div><div id="${id}Content">${content}</div></div>`;
+    ct.appendChild(ov); document.body.style.overflow='hidden';
+}
+
+function closeModal(id){const el=document.getElementById(id);if(el)el.remove();if(!document.querySelector('.modal-overlay'))document.body.style.overflow='';}
+function closeAllModals(){document.querySelectorAll('.modal-overlay').forEach(m=>m.remove());document.body.style.overflow='';}
+
+function refreshUI() {
+    const s=getCurrentStudent();
+    if(s){document.getElementById('currentAvatar').textContent=s.name.charAt(0).toUpperCase();document.getElementById('currentStudentName').textContent=s.name;document.getElementById('currentStudentDetails').textContent=`${s.class} • ${s.subjects}`;}
+    const tk=getTodayKey(),st=getDayStatus(tk);
+    const ind=document.getElementById('statusIndicator');ind.className='status-indicator';
+    document.getElementById('sessionTimer').style.display='none';
+    if(st==='working'){ind.classList.add('working');ind.textContent='✅';document.getElementById('statusTitle').textContent='Done';}
+    else if(st==='leave'){ind.classList.add('leave');ind.textContent='🔴';document.getElementById('statusTitle').textContent='Leave';}
+    else if(st==='partial'){ind.classList.add('pending');ind.textContent='⚠️';document.getElementById('statusTitle').textContent='Partial';}
+    else{ind.classList.add('pending');ind.textContent='⏳';document.getElementById('statusTitle').textContent='Waiting';}
+    if(APP.activeSession){document.getElementById('sessionTimer').style.display='block';updateTimer();}
+    renderCalendar();
+}
+
+function updateTimer() {
+    if(!APP.activeSession)return;
+    const d=Math.floor((new Date()-new Date(APP.activeSession.startTime))/1000);
+    document.getElementById('sessionTimer').textContent=`⏱️ ${String(Math.floor(d/3600)).padStart(2,'0')}:${String(Math.floor((d%3600)/60)).padStart(2,'0')}:${String(d%60).padStart(2,'0')}`;
+    if(APP.activeSession)setTimeout(updateTimer,1000);
+}
+
+function switchTab(tab) {
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    const m={home:0,calendar:1,receipts:2,payments:3,students:4};
+    const tabs=document.querySelectorAll('.nav-item');
+    if(tabs[m[tab]])tabs[m[tab]].classList.add('active');
+    if(tab==='receipts')showRecHistory();
+    else if(tab==='payments')showPayTracker();
+    else if(tab==='students')showStudentSwitcher();
+}
+
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;});
+function installApp(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;});}else if(window.matchMedia('(display-mode: standalone)').matches){showToast('✅ Installed');}else{showToast('📱 Use Chrome menu');}}
+
+function init() {
+    loadData();
+    if(!APP.tutorProfile.logo)APP.tutorProfile.logo=generateDefaultLogo();
+    refreshUI();
+    if(APP.activeSession)updateTimer();
+    if('serviceWorker' in navigator){
+        const sw=`const C='tp-v2';self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil(clients.claim()));self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{if(res.ok){const cl=res.clone();caches.open(C).then(c=>c.put(e.request,cl));}return res;}).catch(()=>caches.match(e.request))))});`;
+        navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'})),{scope:'/'}).catch(()=>{});
+    }
+    console.log('🚀 TutorPro v2.0 | © '+new Date().getFullYear()+' Mr Kaif');
+}
+init();
+</script>
+</body>
+</html>
